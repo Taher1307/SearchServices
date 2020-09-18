@@ -4,21 +4,21 @@
  * %%
  * Copyright (C) 2005 - 2020 Alfresco Software Limited
  * %%
- * This file is part of the Alfresco software. 
- * If the software was purchased under a paid Alfresco license, the terms of 
- * the paid license agreement will prevail.  Otherwise, the software is 
+ * This file is part of the Alfresco software.
+ * If the software was purchased under a paid Alfresco license, the terms of
+ * the paid license agreement will prevail.  Otherwise, the software is
  * provided under the following open source license terms:
- * 
+ *
  * Alfresco is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Alfresco is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with Alfresco. If not, see <http://www.gnu.org/licenses/>.
  * #L%
@@ -117,13 +117,13 @@ public class MetadataTracker extends ActivatableTracker
     /**
      * Check if nextTxCommitTimeService is available in the repository.
      * This service is used to find the next available transaction commit time from a given time,
-     * so periods of time where no document updating is happening can be skipped while getting 
+     * so periods of time where no document updating is happening can be skipped while getting
      * pending transactions list.
      *
      * {@link org.alfresco.solr.client.SOLRAPIClient#GET_NEXT_TX_COMMIT_TIME}
      */
     private boolean nextTxCommitTimeServiceAvailable = false;
-    
+
     /**
      * Check if txInteravlCommitTimeService is available in the repository.
      * This service returns the minimum and the maximum commit time for transactions in a node id range,
@@ -134,9 +134,9 @@ public class MetadataTracker extends ActivatableTracker
     private boolean txIntervalCommitTimeServiceAvailable = false;
     /** Whether the cascade tracking is enabled. */
     private boolean cascadeTrackerEnabled = true;
-    
+
     /**
-     * Transaction Id range to get the first transaction in database. 
+     * Transaction Id range to get the first transaction in database.
      * 0-2000 by default.
      */
     private Pair<Long, Long> minTxnIdRange;
@@ -183,7 +183,7 @@ public class MetadataTracker extends ActivatableTracker
 
         RUN_LOCK_BY_CORE.put(coreName, new Semaphore(1, true));
         WRITE_LOCK_BY_CORE.put(coreName, new Semaphore(1, true));
-        
+
         // In order to apply performance optimizations, checking the availability of Repo Web Scripts is required.
         // As these services are available from ACS 6.2
         if (checkRepoServicesAvailability && isRunningInProduction)
@@ -203,7 +203,7 @@ public class MetadataTracker extends ActivatableTracker
             {
                 LOGGER.error("Checking nextTxCommitTimeService failed.", e);
             }
-    
+
             // Try invoking txIntervalCommitTime service
             if (shardMethod.equals(DB_ID_RANGE))
             {
@@ -224,7 +224,7 @@ public class MetadataTracker extends ActivatableTracker
                 }
             }
         }
-    
+
     }
 
     MetadataTracker()
@@ -311,7 +311,7 @@ public class MetadataTracker extends ActivatableTracker
     private void checkRepoAndIndexConsistency(TrackerState state) throws AuthenticationException, IOException, JSONException
     {
         Transactions firstTransactions = null;
-        if (state.getLastGoodTxCommitTimeInIndex() == 0) 
+        if (state.getLastGoodTxCommitTimeInIndex() == 0)
         {
             state.setCheckedLastTransactionTime(true);
             state.setCheckedFirstTransactionTime(true);
@@ -327,10 +327,10 @@ public class MetadataTracker extends ActivatableTracker
                 setLastTxCommitTimeAndTxIdInTrackerState(firstTransactions);
             }
         }
-        
+
         if (!state.isCheckedFirstTransactionTime())
         {
-            
+
             // On Shards configured with DB_ID_RANGE, the first indexed transaction can be
             // different from the first transaction in the repository as some transactions
             // are skipped if they are not related with the range of the Shard.
@@ -354,11 +354,11 @@ public class MetadataTracker extends ActivatableTracker
                             e.getMessage());
                 }
             }
-            
+
             // When a Shard with DB_ID_RANGE method is empty, minCommitTime is -1.
             // No firstTransaction checking is required for this case.
             if (minCommitTime != -1L) {
-            
+
                 firstTransactions = client.getTransactions(minCommitTime, 0L,
                                 null, INITIAL_MAX_TXN_ID, 1);
                 if (!firstTransactions.getTransactions().isEmpty())
@@ -368,7 +368,7 @@ public class MetadataTracker extends ActivatableTracker
                     long firstTransactionCommitTime = firstTransaction.getCommitTimeMs();
                     int setSize = this.infoSrv.getTxDocsSize(Long.toString(firstTxId),
                             Long.toString(firstTransactionCommitTime));
-                    
+
                     if (setSize == 0)
                     {
                         LOGGER.error("First transaction was not found with the correct timestamp.");
@@ -400,7 +400,7 @@ public class MetadataTracker extends ActivatableTracker
                 firstTransactions = client.getTransactions(null, minTxnIdRange.getFirst(),
                         null, minTxnIdRange.getSecond(), 1);
             }
-            
+
             setLastTxCommitTimeAndTxIdInTrackerState(firstTransactions);
             Long maxTxnCommitTimeInRepo = firstTransactions.getMaxTxnCommitTime();
             Long maxTxnIdInRepo = firstTransactions.getMaxTxnId();
@@ -428,11 +428,11 @@ public class MetadataTracker extends ActivatableTracker
             }
         }
     }
-    
+
     private void indexTransactions() throws IOException, AuthenticationException, JSONException
     {
         long startElapsed = System.nanoTime();
-        
+
         int docCount = 0;
         boolean requiresCommit = false;
         while (transactionsToIndex.peek() != null)
@@ -591,7 +591,7 @@ public class MetadataTracker extends ActivatableTracker
         }
     }
 
-    
+
     private void reindexNodes() throws IOException, AuthenticationException, JSONException
     {
         boolean requiresCommit = false;
@@ -621,7 +621,7 @@ public class MetadataTracker extends ActivatableTracker
             //this.infoSrv.commit();
         }
     }
-    
+
     private void reindexNodesByQuery() throws IOException, AuthenticationException, JSONException
     {
         boolean requiresCommit = false;
@@ -660,7 +660,7 @@ public class MetadataTracker extends ActivatableTracker
             }
             checkShutdown();
         }
-        
+
         if(requiresCommit)
         {
             checkShutdown();
@@ -734,7 +734,7 @@ public class MetadataTracker extends ActivatableTracker
                 int maxResults, long endTime)
             throws AuthenticationException, IOException, JSONException, EncoderException, NoSuchMethodException
     {
-        
+
         Transactions transactions;
         // step forward in time until we find something or hit the time bound
         // max id unbounded
@@ -744,7 +744,7 @@ public class MetadataTracker extends ActivatableTracker
             return client.getTransactions(startTime,
                                           null,
                                           startTime + timeStep,
-                                          null, 
+                                          null,
                                           maxResults);
         }
 
@@ -753,7 +753,7 @@ public class MetadataTracker extends ActivatableTracker
             transactions = client.getTransactions(startTime, null, startTime + timeStep,
                     null, maxResults);
             startTime += timeStep;
-            
+
             // If no transactions are found, advance the time window to the next available transaction commit time
             if (nextTxCommitTimeServiceAvailable && transactions.getTransactions().size() == 0)
             {
@@ -849,8 +849,11 @@ public class MetadataTracker extends ActivatableTracker
                     infoSrv.txnInIndex(transaction.getId(), true));
             if (LOGGER.isTraceEnabled())
             {
-                LOGGER.trace("{}-[CORE {}] Skipping Transaction Id {} as it was already indexed",
-                        Thread.currentThread().getId(), coreName, transaction.getId());
+                if (isInIndex)
+                {
+                    LOGGER.trace("{}-[CORE {}] Skipping Transaction Id {} as it was already indexed",
+                            Thread.currentThread().getId(), coreName, transaction.getId());
+                }
             }
             return !isInIndex;
         }
@@ -914,11 +917,12 @@ public class MetadataTracker extends ActivatableTracker
                             state.getTimeToStopIndexing());
                 }
 
-
+                long idTrackerCycle = System.currentTimeMillis();
                 if (transactions.getTransactions().size() > 0)
                 {
-                    LOGGER.info("{}-[CORE {}] Found {} transactions after lastTxCommitTime {}, transactions from {} to {}",
+                    LOGGER.info("{}:{}-[CORE {}] Found {} transactions after lastTxCommitTime {}, transactions from {} to {}",
                             Thread.currentThread().getId(),
+                            idTrackerCycle,
                             coreName,
                             transactions.getTransactions().size(),
                             fromCommitTime,
@@ -927,8 +931,9 @@ public class MetadataTracker extends ActivatableTracker
                 }
                 else
                 {
-                    LOGGER.info("{}-[CORE {}] No transaction found after lastTxCommitTime {}",
+                    LOGGER.info("{}:{}-[CORE {}] No transaction found after lastTxCommitTime {}",
                             Thread.currentThread().getId(),
+                            idTrackerCycle,
                             coreName,
                             ((txnsFound.size() > 0) ? txnsFound.getLast().getCommitTimeMs()
                                     : state.getLastIndexedTxCommitTime()));
@@ -943,39 +948,51 @@ public class MetadataTracker extends ActivatableTracker
                     break;
                 }
 
-                long transaction_number = transactions.getTransactions().size();
                 final AtomicInteger counter = new AtomicInteger();
                 Collection<List<Transaction>> txBatches = transactions.getTransactions().stream()
                         .peek(txnsFound::add)
                         .filter(this::isTransactionIndexed)
-                        .peek(transaction -> {
-                            if (LOGGER.isTraceEnabled())
-                            {
-                                LOGGER.trace("{}-[CORE {}] Tracking {} Transactions. Current Transaction Id to be indexed: {}",
-                                        Thread.currentThread().getId(), coreName, transaction_number, transaction.getId());
-                            }
-                        })
                         .collect(Collectors.groupingBy(transaction -> counter.getAndAdd(
                                 (int) (transaction.getDeletes() + transaction.getUpdates())) / transactionDocsBatchSize))
                         .values();
 
                 // Index batches of transactions and the nodes updated or deleted within the transaction
+                List<List<Node>> nodeBatches = new ArrayList<>();
                 for (List<Transaction> batch : txBatches)
                 {
 
                     // Index nodes contained in the transactions
-                    int docCount =  indexBatchOfTransactions(batch);
-                    totalUpdatedDocs += docCount;
+                    long idTxBatch = System.currentTimeMillis();
+                    nodeBatches.addAll(indexBatchOfTransactions(batch, idTrackerCycle, idTxBatch));
 
+                }
+
+                // Counter used to identify the worker inside the parallel stream processing
+                long idThread = Thread.currentThread().getId();
+                totalUpdatedDocs += forkJoinPool.submit(() ->
+                        nodeBatches.parallelStream().map(batch -> {
+                            if (LOGGER.isTraceEnabled())
+                            {
+                                LOGGER.trace("{}:{}:{}:{}-[CORE {}] indexing {} nodes ...",
+                                        idThread, idTrackerCycle, 1, 1,
+                                        coreName, batch.size());
+                            }
+                            new NodeIndexWorker(batch, infoSrv, idThread, idTrackerCycle, 1, 1).run();
+                            return batch.size();
+                        }).reduce(0, Integer::sum)).get();
+
+                for (List<Transaction> batch : txBatches)
+                {
                     // Add the transactions as found to avoid processing them again in the next iteration
                     batch.forEach(txnsFound::add);
 
                     // Index the transactions
-                    indexTransactionsAfterWorker(batch);
+                    indexTransactionsAfterWorker(batch, idTrackerCycle, 1);
                     long endElapsed = System.nanoTime();
-                    trackerStats.addElapsedNodeTime(docCount, endElapsed - startElapsed);
+                    trackerStats.addElapsedNodeTime(1, endElapsed - startElapsed);
                     startElapsed = endElapsed;
                 }
+
 
                 setLastTxCommitTimeAndTxIdInTrackerState(transactions);
             }
@@ -987,7 +1004,7 @@ public class MetadataTracker extends ActivatableTracker
             {
                 getWriteLock().release();
             }
-        
+
         }
         while ((transactions.getTransactions().size() > 0));
 
@@ -1016,9 +1033,11 @@ public class MetadataTracker extends ActivatableTracker
     /**
      * Index transactions and update state of the tracker
      * @param txsIndexed List of transactions to be indexed
+     * @param idTrackerCycle Id of the Tracker Cycle being executed
+     * @param idTxBatch Id of the Transaction Batch being executed
      * @throws IOException
      */
-    private void indexTransactionsAfterWorker(List<Transaction> txsIndexed)
+    private void indexTransactionsAfterWorker(List<Transaction> txsIndexed, long idTrackerCycle, long idTxBatch)
                 throws IOException
     {
         for (Transaction tx : txsIndexed)
@@ -1045,16 +1064,18 @@ public class MetadataTracker extends ActivatableTracker
      * the metadata of the nodes in smaller invocations to Repository
      *
      * @param txBatch Batch of transactions to be indexed
+     * @param idTrackerCycle Id of the Tracker Cycle being executed
+     * @param idTxBatch Id of the Transaction Batch being executed
      * @return Number of nodes indexed and last node indexed
      *
      * @throws AuthenticationException
      * @throws IOException
      * @throws JSONException
      */
-    private int indexBatchOfTransactions(List<Transaction> txBatch)
-            throws AuthenticationException, IOException, JSONException, ExecutionException, InterruptedException 
+    private List<List<Node>> indexBatchOfTransactions(List<Transaction> txBatch, long idTrackerCycle, long idTxBatch)
+            throws AuthenticationException, IOException, JSONException, ExecutionException, InterruptedException
     {
-        
+
         // Skip transactions without modifications (updates, deletes)
         ArrayList<Long> txIds = new ArrayList<>();
         for (Transaction tx : txBatch)
@@ -1064,13 +1085,13 @@ public class MetadataTracker extends ActivatableTracker
                 txIds.add(tx.getId());
             }
         }
-        
+
         // Skip getting nodes when no transactions left
         if (txIds.size() == 0)
         {
-            return 0;
+            return Collections.emptyList();
         }
-        
+
         // Get Nodes Id properties for every transaction
         GetNodesParameters gnp = new GetNodesParameters();
         gnp.setTransactionIds(txIds);
@@ -1084,18 +1105,14 @@ public class MetadataTracker extends ActivatableTracker
 
         if (LOGGER.isDebugEnabled())
         {
-            LOGGER.debug("{}-[CORE {}] Found {} Nodes to be indexed from Transactions: {}",
-                    Thread.currentThread().getId(), coreName, nodes.size(), txIds);
+            LOGGER.debug("{}:{}:{}-[CORE {}] Indexing {} Nodes from Transactions: {}",
+                    Thread.currentThread().getId(), idTrackerCycle, idTxBatch,
+                    coreName, nodes.size(), txIds);
         }
 
         // Group the nodes in batches of nodeBatchSize (or less)
-        List<List<Node>> nodeBatches = Lists.partition(nodes, nodeBatchSize);
+        return Lists.partition(nodes, nodeBatchSize);
 
-        return forkJoinPool.submit(() ->
-                nodeBatches.parallelStream().map(batch -> {
-                    new NodeIndexWorker(batch, infoSrv).run();
-                    return batch.size();
-                }).reduce(0, Integer::sum)).get();
     }
 
 
@@ -1106,29 +1123,46 @@ public class MetadataTracker extends ActivatableTracker
     {
         InformationServer infoServer;
         List<Node> nodes;
+        // Unique Id for the worker > thread : trackerCycle : txBatch : worker
+        long idThread;
+        long idTrackerCycle;
+        long idTxBatch;
+        int idWorker;
 
-        NodeIndexWorker(List<Node> nodes, InformationServer infoServer)
+        // Link logger messages to parent Class MetadataTracker
+        protected Logger LOGGER = LoggerFactory.getLogger(MetadataTracker.class);
+
+        NodeIndexWorker(List<Node> nodes, InformationServer infoServer, long idThread, long idTrackerCycle, long idTxBatch, int idWorker)
         {
             this.infoServer = infoServer;
             this.nodes = nodes;
+            this.idThread = idThread;
+            this.idTrackerCycle = idTrackerCycle;
+            this.idTxBatch = idTxBatch;
+            this.idWorker = idWorker;
         }
 
         @Override
         protected void doWork() throws IOException, AuthenticationException, JSONException
-        { 
+        {
             List<Node> filteredNodes = filterNodes(nodes);
             if(filteredNodes.size() > 0)
             {
                 this.infoServer.indexNodes(filteredNodes, true);
             }
+            if (LOGGER.isTraceEnabled())
+            {
+                LOGGER.trace("{}:{}:{}:{}-[CORE {}] ...indexed",
+                        idThread, idTrackerCycle, idTxBatch, idWorker, coreName);
+            }
         }
-        
+
         @Override
         protected void onFail(Throwable failCausedBy)
         {
-        	setRollback(true, failCausedBy);
+            setRollback(true, failCausedBy);
         }
-        
+
         private List<Node> filterNodes(List<Node> nodes)
         {
             List<Node> filteredList = new ArrayList<>(nodes.size());
