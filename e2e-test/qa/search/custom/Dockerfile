@@ -1,5 +1,5 @@
 ARG SEARCH_TAG=latest
-FROM quay.io/alfresco/search-services:$SEARCH_TAG
+FROM alfresco/search-services:2.0.0
 LABEL creator="Paul Brodner" maintainer="Alfresco Search Services Team"
 
 ARG SCRIPTS_FOLDER=
