@@ -1,5 +1,5 @@
 ARG SEARCH_TAG=latest
-FROM alfresco/search-services:2.0.0
+FROM docker.io/alfresco/search-services:latest
 LABEL creator="Paul Brodner" maintainer="Alfresco Search Services Team"
 
 ARG SCRIPTS_FOLDER=
